@@ -35,8 +35,8 @@ def computeCluster(X,type = "Gaussian",n_components=6, debug = True): #Compute t
         print(" ...[OK]")
     return cluster_centers_weights, labels
 
-def computePalette(cluster_centers_weights,n=7, mode = "hsv"): #return a Palette in RGB format
-    P = [[elem[0] for elem in cluster_centers_weights[:min(n,len(cluster_centers_weights))]]]
+def computePalette(cluster_centers_weights,palette_limit=7, mode = "hsv"): #return a Palette in RGB format
+    P = [[elem[0] for elem in cluster_centers_weights[:min(palette_limit,len(cluster_centers_weights))]]]
     if (mode == "hsv"):
         P[0].sort(key = lambda x : x[2])
         P = [[colorsys.hsv_to_rgb(elem[0],elem[1],elem[2]) for elem in P[0]]]
@@ -59,10 +59,18 @@ def showData(X, labels, cluster_centers_weights, mode = "hsv"): #Shows the datza
     plt.show()
 
 
-mode = "hsv"
-X = imageToArray("/Users/nissim/Documents/Programmes python/ImageScripts/images/15-.jpg", mode=mode)
-cluster_centers_weights, labels = computeCluster(X,n_components=8)
-P = computePalette(cluster_centers_weights,20,mode=mode)
-# showData(X, labels, cluster_centers_weights, mode=mode)
-plt.imshow(P)
-plt.show()
+### public
+
+def paletteFromImage(path, n_components=8, palette_limit=5, debug = False, mode = "hsv", clustering_type = "Gaussian", show_clustering = False):
+    # n_components: number of cluster components
+    # palette_limit: numbers of color in palette
+    # debug: show log
+    # mode: can be Hue Saturation Value or RGB
+    # clustering type: can be Gaussian or BayesianGaussian
+    # show_clustering: show the plot of the clusters
+    X = imageToArray(path, mode=mode, debug=debug)
+    cluster_centers_weights, labels = computeCluster(X,n_components=n_components, debug=debug, type = clustering_type)
+    if show_clustering:
+        showData(X, labels, cluster_centers_weights, mode=mode)
+    P = computePalette(cluster_centers_weights,palette_limit=palette_limit,mode=mode)
+    return P
